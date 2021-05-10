@@ -1,6 +1,7 @@
 package relran;
 
 import java.security.PrivateKey;
+import java.util.Arrays;
 import java.util.Comparator;
 import java.util.Iterator;
 import java.util.LinkedList;
@@ -24,19 +25,20 @@ public class OurLinkedList<E> implements OurList<E>{
 
     @Override
     public E get(int index) {
-        Node<E> node = NodeByIndex(index);
+        Node<E> node = nodeByIndex(index);
         return node.elt;
     }
 
-    private Node<E> NodeByIndex(int index) {
-        Node<E> node = first;
+    private Node<E> nodeByIndex(int index) {
+
         if (index < 0 || index >= size)
             throw new IndexOutOfBoundsException();
 
+        Node<E> currentNode = first;
         for (int i = 0; i < index; i++) {
-            node = node.next;
+            currentNode = currentNode.next;
         }
-        return node;
+        return currentNode;
     }
 
     @Override
@@ -55,12 +57,38 @@ public class OurLinkedList<E> implements OurList<E>{
 
     @Override
     public E remove(int index) {
-        return null;
+        Node <E> toRemove = nodeByIndex(index);
+        E res =toRemove.elt;
+        removeNode(toRemove);
+        return res;
     }
 
     @Override
     public boolean remove(E elt) {
-        return false;
+        Node<E> toRemove = findNodeByElt(elt);
+        if(toRemove == null)
+            return false;
+        removeNode(toRemove);
+        return true;
+    }
+
+    private void removeNode(Node<E> toRemove) {
+        Node<E> prev = toRemove.prev;
+        Node<E> next = toRemove.next;
+        if(next == null){
+            last = prev;
+        }else{
+            next.prev = prev;
+        }
+        if(prev == null){
+            first = next;
+        }else{
+            prev.next = next;
+        }
+        toRemove.elt = null;
+        toRemove.next = null;
+        toRemove.prev = null;
+        size--;
     }
 
     @Override
@@ -70,36 +98,138 @@ public class OurLinkedList<E> implements OurList<E>{
 
     @Override
     public E set(int index, E elt) {
-        return null;
+        E oldElement = nodeByIndex(index).elt;
+
+        Node<E> needle = nodeByIndex(index);
+        needle.elt = elt;
+        return oldElement;
+
     }
 
     @Override
     public boolean contains(E elt) {
-        return false;
+        Node<E> needle = findNodeByElt(elt);
+        return needle != null;
+    }
+
+    /**
+     * the method finds a node with the element inside equals to the 'elt'
+     * @param elt
+     * @return the node with the element inside equals to the 'elt' if exits or null
+     */
+    private Node<E> findNodeByElt(E elt) {
+        Node<E> currentNode =first;
+        if(elt == null){
+            while (currentNode != null){
+               if(currentNode.elt == null)
+                   return currentNode;
+               currentNode = currentNode.next;
+           }
+        }else{
+            while (currentNode!= null){
+                if(elt.equals(currentNode.elt))
+                    return currentNode;
+                currentNode = currentNode.next;
+            }
+
+        }
+        return null;
     }
 
     @Override
     public void sort(Comparator<E> comparator) {
+        E[] array = toArray();
+        Arrays.sort(array,comparator);
+
+        Node<E> current = first;
+        for (int i = 0; i < size; i++) {
+            current.elt = array[i];
+            current = current.next;
+        }
 
     }
 
+    private E[] toArray() {
+        Object[] copy = new Object[size];
+
+        Iterator<E> iterator = iterator();
+        int i = 0;
+        while (iterator.hasNext()) {
+            copy[i] = iterator.next();
+            i++;
+        }
+        return (E[]) copy;
+    }
+
+
     @Override
     public E max(Comparator<E> comparator) {
-        return null;
+        E[] array = toArray();
+        E max = array[0];
+        for (int i = 1; i<size; i++){
+            if(comparator.compare(max,array[i])<0){
+                max = array[i];
+            }
+        }
+        return max;
     }
 
     @Override
     public E min(Comparator<E> comparator) {
-        return null;
+        return max(comparator.reversed());
     }
 
     @Override
     public Iterator<E> backwardIterator() {
-        return null;
+        Iterator<E> iterator = new BackwardIterator<>(this.last);
+        return iterator;
     }
 
     @Override
     public Iterator<E> iterator() {
-        return null;
+        Iterator<E> iterator = new ForwardIterator<>(this.first);
+        return iterator;
+    }
+    //----------------------------------------------------------------
+    private static class BackwardIterator<T> implements Iterator<T>{
+
+        Node<T> current;
+
+        public BackwardIterator(Node<T> last) {
+            this.current = last;
+        }
+
+        @Override
+        public boolean hasNext() {
+            return current != null;
+        }
+
+        @Override
+        public T next() {
+            T res = current.elt;
+            current = current.prev;
+            return res;
+        }
+    }
+ //------------------------------------------------------------------------
+    private static class ForwardIterator<T> implements Iterator<T>{
+
+        Node<T> current;
+
+        public ForwardIterator(Node<T> first) {
+            this.current = first;
+        }
+
+        @Override
+        public boolean hasNext() {
+            return current != null;
+        }
+
+        @Override
+        public T next() {
+            T res = current.elt;
+            current = current.next;
+            return res;
+        }
     }
 }

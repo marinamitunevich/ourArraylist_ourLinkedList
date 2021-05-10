@@ -1,5 +1,6 @@
 package relran;
 
+import javafx.beans.binding.ListExpression;
 import org.junit.Before;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
@@ -119,7 +120,8 @@ class OurArrayListTest {
     }
     @Test
     public void textIterator_zeroElement(){
-        Iterator<Integer> it = integer.iterator();
+        OurList<Integer> integer2 = new OurArrayList<>();
+        Iterator<Integer> it = integer2.iterator();
         assertFalse(it.hasNext());
         assertThrows(IndexOutOfBoundsException.class, () -> it.next());
     }

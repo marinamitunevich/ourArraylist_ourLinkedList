@@ -149,7 +149,7 @@ public class OurArrayList <E> implements OurList<E>{
     @Override
     public E max(Comparator<E> comparator){
         E max = (E)source[0];
-        for (int i = 0; i<size; i++){
+        for (int i = 1; i<size; i++){
             if(comparator.compare(max,(E)source[i])<0){
                 max = (E)source[i];
             }
@@ -159,12 +159,20 @@ public class OurArrayList <E> implements OurList<E>{
     @Override
     public E min(Comparator<E> comparator){
         E min = (E)source[0];
-        for (int i = 0; i<size; i++){
+        for (int i = 1; i<size; i++){
             if(comparator.compare(min,(E)source[i])>0){
                 min = (E)source[i];
             }
+
         }
         return min;
+        //return max(comparator.reversed());
+//        Comparator<E> newComparator = new Comparator<E>() {
+//            @Override
+//            public int compare(E o1, E o2) {
+//                return -comparator.compare(o1,o2);
+//            }
+//        }
     }
 
     @Override
